@@ -23,7 +23,10 @@ export class OrderService {
 
     if (useBonus) {
       totalAmount -= userBonus;
-      this.prisma.user.update({ where: { telegramId }, data: { bonus: 0 } });
+      this.prisma.user.update({
+        where: { telegramId: BigInt(telegramId) },
+        data: { bonus: 0 },
+      });
     }
 
     return this.prisma.order.create({
