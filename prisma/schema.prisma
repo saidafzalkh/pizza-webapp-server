@@ -19,6 +19,7 @@ model User {
   bonus      Int      @default(0)
   name       String
   username   String?
+  profilePic String?
   createdAt  DateTime @default(now())
   orders     Order[]
 }

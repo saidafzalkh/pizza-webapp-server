@@ -1,21 +1,20 @@
-import { Update, Ctx, Start, Help, On, Hears, Command } from 'nestjs-telegraf';
-import { TelegrafContext } from 'src/common/interfaces/context.interface';
-import { ShopService } from './shop_bot.service';
+import { Command, Ctx, Hears, Help, On, Start, Update } from 'nestjs-telegraf';
 import { BONUS_AMOUNT } from 'src/app.constants';
+import { TelegrafContext } from 'src/common/interfaces/context.interface';
 import { WEBAPP_INLINE_BUTTON } from 'src/common/layouts/keyboard';
+import { UsersService } from 'src/users/users.service';
 
 @Update()
 export class ShopUpdate {
-  constructor(private service: ShopService) {}
+  constructor(private readonly userService: UsersService) {}
 
   @Start()
   async start(@Ctx() ctx: TelegrafContext) {
     const sender = ctx.from;
-    const user = await this.service.getUser(sender.id);
+    const user = await this.userService.findOne(sender.id);
 
     if (user) {
-      await ctx.reply(`Welcome back ${sender.first_name}`, {
-        parse_mode: 'HTML',
+      await ctx.replyWithHTML(`Welcome back ${sender.first_name}`, {
         reply_markup: {
           ...WEBAPP_INLINE_BUTTON,
         },
@@ -23,15 +22,14 @@ export class ShopUpdate {
       return;
     }
 
-    const newUser = await this.service.createUser({
+    const newUser = await this.userService.createUser({
       name: sender.first_name,
       username: sender.username,
       telegramId: sender.id,
       bonus: BONUS_AMOUNT,
     });
 
-    await ctx.reply(`Welcome new user ${newUser.name}`, {
-      parse_mode: 'HTML',
+    await ctx.replyWithHTML(`Welcome new user ${newUser.name}`, {
       reply_markup: {
         ...WEBAPP_INLINE_BUTTON,
       },

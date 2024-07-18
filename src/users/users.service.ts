@@ -1,9 +1,21 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import { InjectBot } from 'nestjs-telegraf';
+import { SHOP_BOT_NAME } from 'src/app.constants';
+import { TelegrafContext } from 'src/common/interfaces/context.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { Telegraf } from 'telegraf';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectBot(SHOP_BOT_NAME) private readonly bot: Telegraf<TelegrafContext>,
+  ) {}
+
+  async createUser(data: Prisma.UserCreateInput) {
+    return await this.prisma.user.create({ data });
+  }
 
   async findAll() {
     const users = await this.prisma.user.findMany();
@@ -17,6 +29,6 @@ export class UsersService {
     const user = await this.prisma.user.findUnique({
       where: { telegramId: BigInt(id) },
     });
-    return { ...user, telegramId: user.telegramId.toString() };
+    return user ? { ...user, telegramId: user.telegramId.toString() } : null;
   }
 }
