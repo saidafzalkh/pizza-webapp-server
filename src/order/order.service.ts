@@ -8,7 +8,8 @@ export class OrderService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createOrderDto: CreateOrderDto) {
-    const { telegramId, userPhone, userAddress, orderItems } = createOrderDto;
+    const { telegramId, userPhone, useBonus, userAddress, orderItems } =
+      createOrderDto;
 
     const totalAmount = orderItems.reduce((sum, item) => {
       return sum + item.price * item.quantity;
@@ -19,6 +20,7 @@ export class OrderService {
         user: { connect: { telegramId: BigInt(telegramId) } },
         userPhone,
         userAddress,
+        useBonus,
         totalAmount,
         orderItems: {
           create: orderItems.map((item) => ({
