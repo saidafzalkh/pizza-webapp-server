@@ -8,12 +8,23 @@ export class OrderService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createOrderDto: CreateOrderDto) {
-    const { telegramId, userPhone, useBonus, userAddress, orderItems } =
-      createOrderDto;
+    const {
+      telegramId,
+      userPhone,
+      useBonus,
+      userBonus,
+      userAddress,
+      orderItems,
+    } = createOrderDto;
 
-    const totalAmount = orderItems.reduce((sum, item) => {
+    let totalAmount = orderItems.reduce((sum, item) => {
       return sum + item.price * item.quantity;
     }, 0);
+
+    if (useBonus) {
+      totalAmount -= userBonus;
+      this.prisma.user.update({ where: { telegramId }, data: { bonus: 0 } });
+    }
 
     return this.prisma.order.create({
       data: {
