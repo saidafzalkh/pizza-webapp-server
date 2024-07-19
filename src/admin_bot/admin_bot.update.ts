@@ -9,9 +9,8 @@ export class AdminUpdate {
     const user = ctx.from;
 
     if (!ADMIN_LIST.includes(user.id)) {
-      await ctx.reply(
+      await ctx.replyWithHTML(
         `Hello, ${user.first_name}. \n You are not an admin of this bot. You telegram ID is: <code>${user.id}</code> send this to developer and ask make you an admin`,
-        { parse_mode: 'HTML' },
       );
       return;
     }
